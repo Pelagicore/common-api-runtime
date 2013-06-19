@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <type_traits>
 
 namespace CommonAPI {
@@ -37,6 +38,8 @@ class Stub : public StubBase {
 	virtual ~Stub() { }
 
 	virtual _StubRemoteEventHandler* initStubAdapter(const std::shared_ptr<_StubAdapter>& stubAdapter) = 0;
+
+	std::vector<std::shared_ptr<_StubAdapter>> stubAdapters_;
 };
 
 } // namespace CommonAPI
