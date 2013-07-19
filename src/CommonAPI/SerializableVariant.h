@@ -110,7 +110,13 @@ public:
 
     ~Variant();
 
+    template<typename InputStreamType>
+    void readFromInputStream(const uint8_t typeIndex, InputStreamType& inputStream);
+
     virtual void readFromInputStream(const uint8_t typeIndex, InputStream& inputStream);
+
+    template<typename OutputStreamType>
+    void writeToOutputStream(OutputStreamType& outputStream) const;
 
     virtual void writeToOutputStream(OutputStream& outputStream) const;
 
@@ -213,6 +219,10 @@ public:
     }
 
 private:
+
+    template<typename InputStreamType>
+    void readFromGenericInputStream(const uint8_t typeIndex, InputStreamType& inputStream);
+
     inline bool hasValue() const {
         return valueType_ < TypesTupleSize::value;
     }
@@ -231,7 +241,7 @@ private:
     friend struct TypeEqualsVisitor;
     template<typename ... _FriendTypes>
     friend struct PartialEqualsVisitor;
-    template<typename ... _FriendTypes>
+    template<typename InputStreamType, typename ... _FriendTypes>
     friend struct InputStreamReadVisitor;
 
     uint8_t valueType_;
