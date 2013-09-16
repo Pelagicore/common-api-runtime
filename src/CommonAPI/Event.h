@@ -73,12 +73,12 @@ class Event {
 	SubscriptionStatus notifyListeners(const _Arguments&... eventArguments);
 
 	// Events sent during subscribe()
-	virtual void onFirstListenerAdded(const CancellableListener& listener) { }
-	virtual void onListenerAdded(const CancellableListener& listener) { }
+	virtual void onFirstListenerAdded(const CancellableListener& listener) { (void) listener;}
+	virtual void onListenerAdded(const CancellableListener& listener) { (void) listener;}
 
 	// Events sent during unsubscribe()
-	virtual void onListenerRemoved(const CancellableListener& listener) { }
-	virtual void onLastListenerRemoved(const CancellableListener& listener) { }
+	virtual void onListenerRemoved(const CancellableListener& listener) { (void) listener;}
+	virtual void onLastListenerRemoved(const CancellableListener& listener) { (void) listener;}
 
 	inline bool hasListeners() const;
 
