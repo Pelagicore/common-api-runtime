@@ -13,6 +13,8 @@
 #include <poll.h>
 #include <limits>
 #include <vector>
+#include <list>
+#include <functional>
 #include <chrono>
 
 
@@ -28,7 +30,7 @@ enum class DispatchPriority {
 };
 
 
-static int64_t getCurrentTimeInMs() {
+inline int64_t getCurrentTimeInMs() {
    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
