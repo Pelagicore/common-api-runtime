@@ -5,6 +5,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#if !defined (COMMONAPI_INTERNAL_COMPILATION)
+#error "Only <CommonAPI/CommonAPI.h> can be included directly, this file may disappear or change contents."
+#endif
+
 #ifndef COMMONAPI_MAIN_LOOP_CONTEXT_H_
 #define COMMONAPI_MAIN_LOOP_CONTEXT_H_
 
@@ -16,6 +20,7 @@
 #include <list>
 #include <functional>
 #include <chrono>
+#include <list>
 
 
 namespace CommonAPI {
@@ -309,6 +314,16 @@ class MainLoopContext {
         for(auto listener = wakeupListeners_.begin(); listener != wakeupListeners_.end(); ++listener) {
             (*listener)();
         }
+    }
+
+    /**
+     * \brief Will return true if at least one subscribe for DispatchSources or Watches has been called.
+     *
+     * This function will be used to prevent creation of a factory if a mainloop context is given, but
+     * no listeners have been registered. This is done in order to ensure correct use of the mainloop context.
+     */
+    inline bool isInitialized() {
+        return dispatchSourceListeners_.size() > 0 || watchListeners_.size() > 0;
     }
 
  private:

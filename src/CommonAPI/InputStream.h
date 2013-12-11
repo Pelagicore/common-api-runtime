@@ -4,6 +4,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#if !defined (COMMONAPI_INTERNAL_COMPILATION)
+#error "Only <CommonAPI/CommonAPI.h> can be included directly, this file may disappear or change contents."
+#endif
+
 #ifndef COMMONAPI_INPUT_STREAM_H_
 #define COMMONAPI_INPUT_STREAM_H_
 
@@ -23,47 +28,52 @@
 namespace CommonAPI {
 
 class InputStream {
- public:
-    virtual ~InputStream() { }
+public:
+    virtual ~InputStream() {}
     virtual bool hasError() const = 0;
 
- 	virtual InputStream& readValue(bool& boolValue) = 0;
+    virtual InputStream& readValue(bool& boolValue) = 0;
 
- 	virtual InputStream& readValue(int8_t& int8Value) = 0;
- 	virtual InputStream& readValue(int16_t& int16Value) = 0;
- 	virtual InputStream& readValue(int32_t& int32Value) = 0;
- 	virtual InputStream& readValue(int64_t& int64Value) = 0;
+    virtual InputStream& readValue(int8_t& int8Value) = 0;
+    virtual InputStream& readValue(int16_t& int16Value) = 0;
+    virtual InputStream& readValue(int32_t& int32Value) = 0;
+    virtual InputStream& readValue(int64_t& int64Value) = 0;
 
- 	virtual InputStream& readValue(uint8_t& uint8Value) = 0;
- 	virtual InputStream& readValue(uint16_t& uint16Value) = 0;
- 	virtual InputStream& readValue(uint32_t& uint32Value) = 0;
- 	virtual InputStream& readValue(uint64_t& uint64Value) = 0;
+    virtual InputStream& readValue(uint8_t& uint8Value) = 0;
+    virtual InputStream& readValue(uint16_t& uint16Value) = 0;
+    virtual InputStream& readValue(uint32_t& uint32Value) = 0;
+    virtual InputStream& readValue(uint64_t& uint64Value) = 0;
 
- 	virtual InputStream& readValue(float& floatValue) = 0;
- 	virtual InputStream& readValue(double& doubleValue) = 0;
+    virtual InputStream& readValue(float& floatValue) = 0;
+    virtual InputStream& readValue(double& doubleValue) = 0;
 
- 	virtual InputStream& readValue(std::string& stringValue) = 0;
+    virtual InputStream& readValue(std::string& stringValue) = 0;
 
- 	virtual InputStream& readValue(ByteBuffer& byteBufferValue) = 0;
+    virtual InputStream& readValue(ByteBuffer& byteBufferValue) = 0;
 
- 	virtual InputStream& readEnumValue(int8_t& int8BackingTypeValue) = 0;
- 	virtual InputStream& readEnumValue(int16_t& int16BackingTypeValue) = 0;
- 	virtual InputStream& readEnumValue(int32_t& int32BackingTypeValue) = 0;
- 	virtual InputStream& readEnumValue(int64_t& int64BackingTypeValue) = 0;
- 	virtual InputStream& readEnumValue(uint8_t& uint8BackingTypeValue) = 0;
- 	virtual InputStream& readEnumValue(uint16_t& uint16BackingTypeValue) = 0;
- 	virtual InputStream& readEnumValue(uint32_t& uint32BackingTypeValue) = 0;
- 	virtual InputStream& readEnumValue(uint64_t& uint64BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(int8_t& int8BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(int16_t& int16BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(int32_t& int32BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(int64_t& int64BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(uint8_t& uint8BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(uint16_t& uint16BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(uint32_t& uint32BackingTypeValue) = 0;
+    virtual InputStream& readEnumValue(uint64_t& uint64BackingTypeValue) = 0;
 
- 	template <typename _EnumBackingType, typename _EnumType>
- 	inline InputStream& readEnumValue(_EnumType& enumValue);
+    template<typename _EnumBackingType, typename _EnumType>
+    inline InputStream& readEnumValue(_EnumType& enumValue);
 
- 	virtual InputStream& readVersionValue(Version& versionValue) = 0;
+    virtual InputStream& readVersionValue(Version& versionValue) = 0;
 
- 	virtual void beginReadSerializableStruct(const SerializableStruct& serializableStruct) = 0;
- 	virtual void endReadSerializableStruct(const SerializableStruct& serializableStruct) = 0;
+    virtual void beginReadSerializableStruct(const SerializableStruct& serializableStruct) = 0;
+    virtual void endReadSerializableStruct(const SerializableStruct& serializableStruct) = 0;
+
+    virtual void beginReadSerializablePolymorphicStruct(uint32_t& serialId) = 0;
+    virtual void endReadSerializablePolymorphicStruct(const uint32_t& serialId) = 0;
 
     virtual void readSerializableVariant(SerializableVariant& serializableVariant) = 0;
+
+    virtual char* readRawData(const size_t numBytesToRead) = 0;
 
     virtual void beginReadBoolVector() = 0;
     virtual void beginReadInt8Vector() = 0;
@@ -94,77 +104,78 @@ class InputStream {
     virtual void beginReadVectorOfVectors() = 0;
     virtual void beginReadVectorOfMaps() = 0;
 
+    virtual void beginReadVectorOfSerializablePolymorphicStructs() = 0;
+
     virtual bool hasMoreVectorElements() = 0;
     virtual void endReadVector() = 0;
 
- 	virtual void beginReadMap() = 0;
- 	virtual bool hasMoreMapElements() = 0;
- 	virtual void endReadMap() = 0;
- 	virtual void beginReadMapElement() = 0;
- 	virtual void endReadMapElement() = 0;
+    virtual void beginReadMap() = 0;
+    virtual bool hasMoreMapElements() = 0;
+    virtual void endReadMap() = 0;
+    virtual void beginReadMapElement() = 0;
+    virtual void endReadMapElement() = 0;
 };
 
-template <typename _EnumBackingType, typename _EnumType>
+template<typename _EnumBackingType, typename _EnumType>
 InputStream& InputStream::readEnumValue(_EnumType& enumValue) {
-	_EnumBackingType enumBackingValue;
+    _EnumBackingType enumBackingValue;
 
-	readEnumValue(enumBackingValue);
-	enumValue = static_cast<_EnumType>(enumBackingValue);
+    readEnumValue(enumBackingValue);
+    enumValue = static_cast<_EnumType>(enumBackingValue);
 
-	return *this;
+    return *this;
 }
 
-
 inline InputStream& operator>>(InputStream& inputStream, bool& boolValue) {
-	return inputStream.readValue(boolValue);
+    return inputStream.readValue(boolValue);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, int8_t& int8Value) {
-	return inputStream.readValue(int8Value);
+    return inputStream.readValue(int8Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, int16_t& int16Value) {
-	return inputStream.readValue(int16Value);
+    return inputStream.readValue(int16Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, int32_t& int32Value) {
-	return inputStream.readValue(int32Value);
+    return inputStream.readValue(int32Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, int64_t& int64Value) {
-	return inputStream.readValue(int64Value);
+    return inputStream.readValue(int64Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, uint8_t& uint8Value) {
-	return inputStream.readValue(uint8Value);
+    return inputStream.readValue(uint8Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, uint16_t& uint16Value) {
-	return inputStream.readValue(uint16Value);
+    return inputStream.readValue(uint16Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, uint32_t& uint32Value) {
-	return inputStream.readValue(uint32Value);
+    return inputStream.readValue(uint32Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, uint64_t& uint64Value) {
-	return inputStream.readValue(uint64Value);
+    return inputStream.readValue(uint64Value);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, float& floatValue) {
-	return inputStream.readValue(floatValue);
+    return inputStream.readValue(floatValue);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, double& doubleValue) {
-	return inputStream.readValue(doubleValue);
+    return inputStream.readValue(doubleValue);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, std::string& stringValue) {
-	return inputStream.readValue(stringValue);
+    return inputStream.readValue(stringValue);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, Version& versionValue) {
-	return inputStream.readVersionValue(versionValue);
+    return inputStream.readVersionValue(versionValue);
 }
 
 inline InputStream& operator>>(InputStream& inputStream, SerializableStruct& serializableStruct) {
@@ -175,20 +186,40 @@ inline InputStream& operator>>(InputStream& inputStream, SerializableStruct& ser
     return inputStream;
 }
 
+template<typename _SerializablePolymorphicStructType>
+typename std::enable_if<std::is_base_of<SerializablePolymorphicStruct, _SerializablePolymorphicStructType>::value,
+                InputStream>::type&
+operator>>(InputStream& inputStream,
+           std::shared_ptr<_SerializablePolymorphicStructType>& serializablePolymorphicStruct) {
+    uint32_t serialId;
+
+    inputStream.beginReadSerializablePolymorphicStruct(serialId);
+    if (!inputStream.hasError()) {
+        _SerializablePolymorphicStructType* instancePtr = _SerializablePolymorphicStructType::createInstance(serialId);
+        serializablePolymorphicStruct.reset(instancePtr);
+        if (instancePtr != NULL) {
+            instancePtr->readFromInputStream(inputStream);
+        }
+
+        inputStream.endReadSerializablePolymorphicStruct(serialId);
+    }
+
+    return inputStream;
+}
+
 inline InputStream& operator>>(InputStream& inputStream, SerializableVariant& serializableVariant) {
     inputStream.readSerializableVariant(serializableVariant);
     return inputStream;
 }
 
-
-template <typename _VectorElementType>
+template<typename _VectorElementType>
 class InputStreamGenericTypeVectorHelper {
- public:
+public:
     static void beginReadVector(InputStream& inputStream, const std::vector<_VectorElementType>& vectorValue) {
         doBeginReadVector(inputStream, vectorValue);
     }
 
- private:
+private:
     static inline void doBeginReadVector(InputStream& inputStream, const std::vector<bool>& vectorValue) {
         inputStream.beginReadBoolVector();
     }
@@ -232,46 +263,59 @@ class InputStreamGenericTypeVectorHelper {
         inputStream.beginReadVersionVector();
     }
 
+    template<typename _PointerType,
+             typename = typename std::enable_if<
+                                    std::is_base_of<SerializablePolymorphicStruct, _PointerType>::value>::type>
+    static inline void doBeginReadVector(InputStream& inputStream,
+                                         const std::vector<std::shared_ptr<_PointerType>>& vectorValue) {
+        inputStream.beginReadVectorOfSerializablePolymorphicStructs();
+    }
+
     template<typename _InnerVectorElementType>
-    static inline void doBeginReadVector(InputStream& inputStream, const std::vector<std::vector<_InnerVectorElementType>>& vectorValue) {
+    static inline void doBeginReadVector(InputStream& inputStream,
+                                         const std::vector<std::vector<_InnerVectorElementType>>& vectorValue) {
         inputStream.beginReadVectorOfVectors();
     }
 
-    template<typename _InnerKeyType, typename _InnerValueType>
-    static inline void doBeginReadVector(InputStream& inputStream, const std::vector<std::unordered_map<_InnerKeyType, _InnerValueType>>& vectorValue) {
+    template<typename _InnerKeyType, typename _InnerValueType, typename _InnerHashType>
+    static inline void doBeginReadVector(InputStream& inputStream,
+                                         const std::vector<std::unordered_map<_InnerKeyType, _InnerValueType, _InnerHashType>>& vectorValue) {
         inputStream.beginReadVectorOfMaps();
     }
+
+    template<typename _InnerKeyType, typename _InnerValueType>
+        static inline void doBeginReadVector(InputStream& inputStream,
+                                             const std::vector<std::unordered_map<_InnerKeyType, _InnerValueType>>& vectorValue) {
+            inputStream.beginReadVectorOfMaps();
+        }
 };
 
-
-template <typename _VectorElementType, bool _IsSerializableStruct = false>
+template<typename _VectorElementType, bool _IsSerializableStruct = false>
 struct InputStreamSerializableStructVectorHelper: InputStreamGenericTypeVectorHelper<_VectorElementType> {
 };
 
-template <typename _VectorElementType>
+template<typename _VectorElementType>
 struct InputStreamSerializableStructVectorHelper<_VectorElementType, true> {
     static void beginReadVector(InputStream& inputStream, const std::vector<_VectorElementType>& vectorValue) {
         inputStream.beginReadVectorOfSerializableStructs();
     }
 };
 
-
-template <typename _VectorElementType, bool _IsSerializableVariant = false>
+template<typename _VectorElementType, bool _IsSerializableVariant = false>
 struct InputStreamSerializableVariantVectorHelper: InputStreamSerializableStructVectorHelper<_VectorElementType,
-                                                                                             std::is_base_of<SerializableStruct, _VectorElementType>::value> {
+                std::is_base_of<SerializableStruct, _VectorElementType>::value> {
 };
 
-template <typename _VectorElementType>
+template<typename _VectorElementType>
 struct InputStreamSerializableVariantVectorHelper<_VectorElementType, true> {
     static void beginReadVector(InputStream& inputStream, const std::vector<_VectorElementType>& vectorValue) {
         inputStream.beginReadVectorOfSerializableVariants();
     }
 };
 
-
-template <typename _VectorElementType>
+template<typename _VectorElementType>
 struct InputStreamVectorHelper: InputStreamSerializableVariantVectorHelper<_VectorElementType,
-                                                                           std::is_base_of<SerializableVariant, _VectorElementType>::value> {
+                std::is_base_of<SerializableVariant, _VectorElementType>::value> {
 };
 
 /**
@@ -303,30 +347,28 @@ InputStream& operator>>(InputStream& inputStream, std::vector<_VectorElementType
     return inputStream;
 }
 
+template<typename _KeyType, typename _ValueType, typename _HasherType>
+InputStream& operator>>(InputStream& inputStream, std::unordered_map<_KeyType, _ValueType, _HasherType>& mapValue) {
+    typedef typename std::unordered_map<_KeyType, _ValueType, _HasherType>::value_type MapValueType;
 
-template<typename _KeyType, typename _ValueType>
-InputStream& operator>>(InputStream& inputStream, std::unordered_map<_KeyType, _ValueType>& mapValue) {
-	typedef typename std::unordered_map<_KeyType, _ValueType>::value_type MapValueType;
+    inputStream.beginReadMap();
 
-	inputStream.beginReadMap();
+    while (inputStream.hasMoreMapElements()) {
+        _KeyType elementKey;
+        _ValueType elementValue;
 
-	while (inputStream.hasMoreMapElements()) {
-		_KeyType elementKey;
-		_ValueType elementValue;
+        inputStream.beginReadMapElement();
+        inputStream >> elementKey >> elementValue;
+        inputStream.endReadMapElement();
 
-		inputStream.beginReadMapElement();
-		inputStream >> elementKey >> elementValue;
-		inputStream.endReadMapElement();
+        if (inputStream.hasError())
+            break;
 
-		if (inputStream.hasError())
-			break;
+        mapValue.insert(MapValueType(std::move(elementKey), std::move(elementValue)));
+    }
 
-		mapValue.insert(MapValueType(std::move(elementKey), std::move(elementValue)));
-	}
-
-	inputStream.endReadMap();
-
-	return inputStream;
+    inputStream.endReadMap();
+    return inputStream;
 }
 
 } // namespace CommonAPI

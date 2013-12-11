@@ -9,34 +9,25 @@
 #error "Only <CommonAPI/CommonAPI.h> can be included directly, this file may disappear or change contents."
 #endif
 
-#ifndef COMMON_API_DBUS_ATTRIBUTE_EXTENSION_H_
-#define COMMON_API_DBUS_ATTRIBUTE_EXTENSION_H_
+#ifndef FUNCTIONALHASH_H_
+#define FUNCTIONALHASH_H_
 
-#include "types.h"
-#include "Event.h"
-
-#include <cstdint>
 #include <functional>
 #include <memory>
 
-
 namespace CommonAPI {
+class ClientId;
 
-template<typename _AttributeType>
-class AttributeExtension {
- public:
-    inline _AttributeType& getBaseAttribute() {
-        return baseAttribute_;
-    }
-
- protected:
-    AttributeExtension() = delete;
-    AttributeExtension(_AttributeType& baseAttribute): baseAttribute_(baseAttribute) {
-    }
-
-    _AttributeType& baseAttribute_;
+struct SharedPointerClientIdContentHash : public std::unary_function<std::shared_ptr<ClientId>, size_t> {
+    size_t operator()(const std::shared_ptr<ClientId>& t) const;
 };
 
-} // namespace CommonAPI
+struct SharedPointerClientIdContentEqual : public std::binary_function<std::shared_ptr<ClientId>, std::shared_ptr<ClientId>, bool> {
+    bool operator()(const std::shared_ptr<ClientId>& a, const std::shared_ptr<ClientId>& b) const;
+};
 
-#endif // COMMON_API_DBUS_ATTRIBUTE_EXTENSION_H_
+
+}  // namespace std
+
+
+#endif /* FUNCTIONALHASH_H_ */

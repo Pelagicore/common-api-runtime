@@ -15,6 +15,35 @@
 
 namespace CommonAPI {
 
+template<class Variant, typename ... _Types>
+struct ApplyVoidIndexVisitor;
+
+template<class Variant>
+struct ApplyVoidIndexVisitor<Variant> {
+    static const uint8_t index = 0;
+
+    static
+    void visit(Variant&, uint8_t&) {
+        //won't be called
+        assert(false);
+    }
+};
+
+template<class Variant, typename _Type, typename ... _Types>
+struct ApplyVoidIndexVisitor<Variant, _Type, _Types...> {
+    static const uint8_t index = ApplyVoidIndexVisitor<Variant,
+                    _Types...>::index + 1;
+
+    static void visit(Variant& var, uint8_t& ind) {
+        if (ind == index) {
+            new (&var.valueStorage_) _Type();
+            var.valueType_ = index;
+        } else {
+            ApplyVoidIndexVisitor<Variant, _Types...>::visit(var, ind);
+        }
+    }
+};
+
 template<class Visitor, class Variant, typename ... _Types>
 struct ApplyVoidVisitor;
 
@@ -306,6 +335,7 @@ struct TypeIndex<_Type, _Types...> {
 template<typename ... _Types>
 Variant<_Types...>::Variant() :
                 valueType_(TypesTupleSize::value) {
+    ApplyVoidIndexVisitor<Variant<_Types...>, _Types...>::visit(*this, valueType_);
 }
 
 template<typename ... _Types>
@@ -315,10 +345,18 @@ Variant<_Types...>::Variant(const Variant& fromVariant) {
 }
 
 template<typename ... _Types>
-Variant<_Types...>::Variant(Variant&& fromVariant) {
+Variant<_Types...>::Variant(Variant&& fromVariant)
+{
     AssignmentVisitor<_Types...> visitor(*this, false);
     ApplyVoidVisitor<AssignmentVisitor<_Types...> , Variant<_Types...>, _Types...>::visit(visitor, fromVariant);
 }
+
+/*template<typename ... _Types>
+Variant<_Types...>::Variant(Variant&& fromVariant) :
+    valueType_(std::move(fromVariant.valueType_)),
+    valueStorage_(std::move(fromVariant.valueStorage_))
+{
+}*/
 
 template<typename ... _Types>
 Variant<_Types...>::~Variant() {
@@ -343,7 +381,7 @@ template<typename ... _Types>
 template<typename InputStreamType>
 void Variant<_Types...>::readFromGenericInputStream(const uint8_t typeIndex, InputStreamType& inputStream) {
     if(hasValue()) {
-        DeleteVisitor<maxSize> visitor(valueStorage_);
+		DeleteVisitor<maxSize> visitor(valueStorage_);
         ApplyVoidVisitor<DeleteVisitor<maxSize>, Variant<_Types...>, _Types...>::visit(visitor, *this);
     }
     valueType_ = typeIndex;
@@ -375,7 +413,7 @@ void Variant<_Types...>::writeToTypeOutputStream(TypeOutputStream& typeOutputStr
 
 template<typename ... _Types>
 Variant<_Types...>& Variant<_Types...>::operator=(const Variant<_Types...>& rhs) {
-    AssignmentVisitor<_Types...> visitor(*this);
+    AssignmentVisitor<_Types...> visitor(*this, hasValue());
     ApplyVoidVisitor<AssignmentVisitor<_Types...>, Variant<_Types...>, _Types...>::visit(
                     visitor, rhs);
     return *this;
@@ -383,7 +421,7 @@ Variant<_Types...>& Variant<_Types...>::operator=(const Variant<_Types...>& rhs)
 
 template<typename ... _Types>
 Variant<_Types...>& Variant<_Types...>::operator=(Variant<_Types...>&& rhs) {
-    AssignmentVisitor<_Types...> visitor(*this);
+    AssignmentVisitor<_Types...> visitor(*this, hasValue());
     ApplyVoidVisitor<AssignmentVisitor<_Types...>, Variant<_Types...>, _Types...>::visit(visitor, rhs);
     return *this;
 }
@@ -435,8 +473,13 @@ const _Type & Variant<_Types...>::get() const {
     if (cType == valueType_) {
         return *(reinterpret_cast<const _Type *>(&valueStorage_));
     } else {
+#ifdef __EXCEPTIONS
         std::bad_cast toThrow;
         throw toThrow;
+#else
+        printf("SerializableVariant.hpp:%i %s: Incorrect access to variant; attempting to get type not currently contained", __LINE__, __FUNCTION__);
+        abort();
+#endif
     }
 }
 
@@ -447,7 +490,7 @@ void Variant<_Types...>::set(const _U& value, const bool clear) {
     typedef typename TypeSelector<_U, _Types...>::type selected_type_t;
 
     if (clear) {
-        DeleteVisitor<maxSize> visitor(valueStorage_);
+		DeleteVisitor<maxSize> visitor(valueStorage_);
         ApplyVoidVisitor<DeleteVisitor<maxSize>, Variant<_Types...>, _Types...>::visit(visitor, *this);
     }
     new (&valueStorage_) selected_type_t(std::move(value));
@@ -462,7 +505,7 @@ void Variant<_Types...>::set(_U&& value, const bool clear) {
     selected_type_t&& any_container_value = std::move(value);
     if(clear)
     {
-        DeleteVisitor<maxSize> visitor(valueStorage_);
+		DeleteVisitor<maxSize> visitor(valueStorage_);
         ApplyVoidVisitor<DeleteVisitor<maxSize>, Variant<_Types...>, _Types...>::visit(visitor, *this);
     } else {
         new (&valueStorage_) selected_type_t(std::move(any_container_value));

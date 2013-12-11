@@ -4,6 +4,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#if !defined (COMMONAPI_INTERNAL_COMPILATION)
+#error "Only <CommonAPI/CommonAPI.h> can be included directly, this file may disappear or change contents."
+#endif
+
 #ifndef COMMONAPI_STUB_H_
 #define COMMONAPI_STUB_H_
 
@@ -15,8 +20,9 @@
 namespace CommonAPI {
 
 class StubAdapter {
- public:
-    virtual ~StubAdapter() { }
+public:
+    virtual ~StubAdapter() {
+    }
 
     virtual const std::string getAddress() const = 0;
     virtual const std::string& getDomain() const = 0;
@@ -25,21 +31,31 @@ class StubAdapter {
 };
 
 struct StubBase {
-	virtual ~StubBase() {}
+    virtual ~StubBase() {
+    }
 };
 
-template <typename _StubAdapter, typename _StubRemoteEventHandler>
-class Stub : public StubBase {
-	static_assert(std::is_base_of<StubAdapter, _StubAdapter>::value, "Invalid StubAdapter Class!");
- public:
-	typedef _StubAdapter StubAdapterType;
-	typedef _StubRemoteEventHandler RemoteEventHandlerType;
+template<typename _StubAdapter, typename _StubRemoteEventHandler>
+class Stub: public virtual StubBase {
+    static_assert(std::is_base_of<StubAdapter, _StubAdapter>::value, "Invalid StubAdapter Class!");
+    public:
+    typedef _StubAdapter StubAdapterType;
+    typedef _StubRemoteEventHandler RemoteEventHandlerType;
 
-	virtual ~Stub() { }
+    virtual ~Stub() {
+    }
 
-	virtual _StubRemoteEventHandler* initStubAdapter(const std::shared_ptr<_StubAdapter>& stubAdapter) = 0;
+    virtual _StubRemoteEventHandler* initStubAdapter(const std::shared_ptr<_StubAdapter>& stubAdapter) = 0;
+//    virtual const std::shared_ptr<_StubAdapter> getStubAdapter() {
+//        return stubAdapter_;
+//    }
+    protected:
+    std::vector<std::shared_ptr<_StubAdapter>> stubAdapters_;
+};
 
-	std::vector<std::shared_ptr<_StubAdapter>> stubAdapters_;
+enum SelectiveBroadcastSubscriptionEvent {
+    SUBSCRIBED,
+    UNSUBSCRIBED
 };
 
 } // namespace CommonAPI

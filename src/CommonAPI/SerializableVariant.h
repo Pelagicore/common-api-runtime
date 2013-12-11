@@ -4,6 +4,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#if !defined (COMMONAPI_INTERNAL_COMPILATION)
+#error "Only <CommonAPI/CommonAPI.h> can be included directly, this file may disappear or change contents."
+#endif
+
 #ifndef COMMONAPI_SERIALIZABLE_VARIANT_H_
 #define COMMONAPI_SERIALIZABLE_VARIANT_H_
 
@@ -204,13 +209,18 @@ public:
                     typename std::enable_if<!std::is_reference<_Type>::value>::type* = 0,
                     typename std::enable_if<!std::is_same<_Type, Variant>::value>::type* = 0);
 
+    /**
+     * \brief Get value of variant, template to content type. Throws exception if type is not contained.
+     *
+     * Get value of variant, template to content type. Throws exception if type is not contained.
+     */
     template <typename _Type>
     const _Type& get() const;
 
     /**
-     * \brief Get index in template list of type actually contained
+     * \brief Get index in template list of type actually contained, starting at 1 at the end of the template list
      *
-     * Get index in template list of type actually contained
+     * Get index in template list of type actually contained, starting at 1 at the end of the template list
      *
      * @return Index of contained type
      */
@@ -222,10 +232,6 @@ private:
 
     template<typename InputStreamType>
     void readFromGenericInputStream(const uint8_t typeIndex, InputStreamType& inputStream);
-
-    inline bool hasValue() const {
-        return valueType_ < TypesTupleSize::value;
-    }
 
     template<typename _U>
     void set( const _U& value, const bool clear);
@@ -243,7 +249,13 @@ private:
     friend struct PartialEqualsVisitor;
     template<typename InputStreamType, typename ... _FriendTypes>
     friend struct InputStreamReadVisitor;
+    template<class Variant, typename ... _FTypes>
+    friend struct ApplyVoidIndexVisitor;
 
+protected:
+    inline bool hasValue() const {
+        return valueType_ < TypesTupleSize::value;
+    }
     uint8_t valueType_;
     typename std::aligned_storage<maxSize>::type valueStorage_;
 };
