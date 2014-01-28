@@ -17,8 +17,6 @@
 #include <poll.h>
 #include <limits>
 #include <vector>
-#include <list>
-#include <functional>
 #include <chrono>
 #include <list>
 

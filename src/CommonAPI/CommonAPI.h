@@ -18,9 +18,8 @@
 #include "AttributeExtension.h"
 #include "ByteBuffer.h"
 #include "types.h"
-#include "SerializableVariant.h"
 
-//#undef COMMONAPI_INTERNAL_COMPILATION
+#undef COMMONAPI_INTERNAL_COMPILATION
 
 
 #endif /* COMMONAPI_H_ */
