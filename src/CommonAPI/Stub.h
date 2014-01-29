@@ -14,7 +14,6 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 #include <type_traits>
 
 namespace CommonAPI {
@@ -46,11 +45,12 @@ class Stub: public virtual StubBase {
     }
 
     virtual _StubRemoteEventHandler* initStubAdapter(const std::shared_ptr<_StubAdapter>& stubAdapter) = 0;
-//    virtual const std::shared_ptr<_StubAdapter> getStubAdapter() {
-//        return stubAdapter_;
-//    }
+    virtual const std::shared_ptr<_StubAdapter> getStubAdapter() {
+        return stubAdapter_;
+    }
     protected:
-    std::vector<std::shared_ptr<_StubAdapter>> stubAdapters_;
+    std::shared_ptr<_StubAdapter> stubAdapter_;
+
 };
 
 enum SelectiveBroadcastSubscriptionEvent {
