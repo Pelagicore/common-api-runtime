@@ -45,11 +45,7 @@ inline bool Runtime::tryLoadLibrary(const std::string& libraryPath,
     //dlopen() doesn't know about the compile time linked library and will close it if dlclose() ever is
     //called, thereby causing memory corruptions. Therefore, we must be able to access the middlewareInfo
     //of the newly dlopened library in order to determine whether it already has been linked.
-    auto flags = RTLD_LAZY | RTLD_LOCAL;
-#ifdef __linux__
-    flags |= RTLD_DEEPBIND;
-#endif
-    *sharedLibraryHandle = dlopen(libraryPath.c_str(), flags);
+    *sharedLibraryHandle = dlopen(libraryPath.c_str(), RTLD_LAZY | RTLD_LOCAL | RTLD_DEEPBIND);
     if (sharedLibraryHandle == NULL) {
         return false;
     }
