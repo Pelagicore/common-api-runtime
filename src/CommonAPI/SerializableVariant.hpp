@@ -147,10 +147,9 @@ private:
     TypeOutputStream& typeStream_;
 };
 
-template<typename OutputStreamType>
 struct OutputStreamWriteVisitor {
 public:
-    OutputStreamWriteVisitor(OutputStreamType& outputStream) :
+    OutputStreamWriteVisitor(OutputStream& outputStream) :
                     outputStream_(outputStream) {
     }
 
@@ -160,14 +159,14 @@ public:
     }
 
 private:
-    OutputStreamType& outputStream_;
+    OutputStream& outputStream_;
 };
 
 
-template<typename InputStreamType, typename ... _Types>
+template<typename ... _Types>
 struct InputStreamReadVisitor {
 public:
-	InputStreamReadVisitor(Variant<_Types...>& lhs, InputStreamType& inputStream) :
+    InputStreamReadVisitor(Variant<_Types...>& lhs, InputStream& inputStream) :
                     lhs_(lhs),
                     inputStream_(inputStream) {
     }
@@ -181,8 +180,9 @@ public:
 
 private:
     Variant<_Types...>& lhs_;
-    InputStreamType& inputStream_;
+    InputStream& inputStream_;
 };
+
 
 template<typename _Type>
 struct TypeEqualsVisitor
@@ -368,39 +368,19 @@ Variant<_Types...>::~Variant() {
 
 template<typename ... _Types>
 void Variant<_Types...>::readFromInputStream(const uint8_t typeIndex, InputStream& inputStream) {
-	readFromGenericInputStream(typeIndex, inputStream);
-}
-
-template<typename ... _Types>
-template<typename InputStreamType>
-void Variant<_Types...>::readFromInputStream(const uint8_t typeIndex, InputStreamType& inputStream) {
-	readFromGenericInputStream(typeIndex, inputStream);
-}
-
-template<typename ... _Types>
-template<typename InputStreamType>
-void Variant<_Types...>::readFromGenericInputStream(const uint8_t typeIndex, InputStreamType& inputStream) {
     if(hasValue()) {
 		DeleteVisitor<maxSize> visitor(valueStorage_);
         ApplyVoidVisitor<DeleteVisitor<maxSize>, Variant<_Types...>, _Types...>::visit(visitor, *this);
     }
     valueType_ = typeIndex;
-    InputStreamReadVisitor<InputStreamType, _Types...> visitor(*this, inputStream);
-    ApplyVoidVisitor<InputStreamReadVisitor<InputStreamType, _Types...>, Variant<_Types...>, _Types...>::visit(visitor, *this);
+    InputStreamReadVisitor<_Types...> visitor(*this, inputStream);
+    ApplyVoidVisitor<InputStreamReadVisitor<_Types...>, Variant<_Types...>, _Types...>::visit(visitor, *this);
 }
 
 template<typename ... _Types>
 void Variant<_Types...>::writeToOutputStream(OutputStream& outputStream) const {
-    OutputStreamWriteVisitor<OutputStream> visitor(outputStream);
-    ApplyVoidVisitor<OutputStreamWriteVisitor<OutputStream>, Variant<_Types...>, _Types...>::visit(
-                    visitor, *this);
-}
-
-template<typename ... _Types>
-template<typename OutputStreamType>
-void Variant<_Types...>::writeToOutputStream(OutputStreamType& outputStream) const {
-    OutputStreamWriteVisitor<OutputStreamType> visitor(outputStream);
-    ApplyVoidVisitor<OutputStreamWriteVisitor<OutputStreamType>, Variant<_Types...>, _Types...>::visit(
+    OutputStreamWriteVisitor visitor(outputStream);
+    ApplyVoidVisitor<OutputStreamWriteVisitor, Variant<_Types...>, _Types...>::visit(
                     visitor, *this);
 }
 

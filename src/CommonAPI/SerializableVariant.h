@@ -115,13 +115,7 @@ public:
 
     ~Variant();
 
-    template<typename InputStreamType>
-    void readFromInputStream(const uint8_t typeIndex, InputStreamType& inputStream);
-
     virtual void readFromInputStream(const uint8_t typeIndex, InputStream& inputStream);
-
-    template<typename OutputStreamType>
-    void writeToOutputStream(OutputStreamType& outputStream) const;
 
     virtual void writeToOutputStream(OutputStream& outputStream) const;
 
@@ -230,9 +224,6 @@ public:
 
 private:
 
-    template<typename InputStreamType>
-    void readFromGenericInputStream(const uint8_t typeIndex, InputStreamType& inputStream);
-
     template<typename _U>
     void set( const _U& value, const bool clear);
 
@@ -247,7 +238,7 @@ private:
     friend struct TypeEqualsVisitor;
     template<typename ... _FriendTypes>
     friend struct PartialEqualsVisitor;
-    template<typename InputStreamType, typename ... _FriendTypes>
+    template<typename ... _FriendTypes>
     friend struct InputStreamReadVisitor;
     template<class Variant, typename ... _FTypes>
     friend struct ApplyVoidIndexVisitor;
