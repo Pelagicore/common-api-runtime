@@ -48,6 +48,9 @@ class Runtime {
 
     virtual ~Runtime() {}
 
+#define COMMON_API_PATCH_RUNTIMES_DISCOVERY
+    static std::vector<std::string> getRuntimeNames();
+
     /**
      * \brief Loads the default runtime.
      *

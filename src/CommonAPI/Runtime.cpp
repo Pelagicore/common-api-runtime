@@ -23,11 +23,20 @@ namespace CommonAPI {
 
 
 static std::unordered_map<std::string, MiddlewareRuntimeLoadFunction>* registeredRuntimeLoadFunctions_;
-static bool isDynamic_ = false;
+static const bool isDynamic_ = false;
 
 static const char COMMONAPI_LIB_PREFIX[] = "libCommonAPI-";
 static const char MIDDLEWARE_INFO_SYMBOL_NAME[] = "middlewareInfo";
 
+std::vector<std::string> Runtime::getRuntimeNames() {
+	std::vector<std::string> names;
+	for( auto it = registeredRuntimeLoadFunctions_->begin(); it != registeredRuntimeLoadFunctions_->end(); ++it ) {
+		std::string s((*it).first);
+		names.push_back(s);
+	}
+
+	return names;
+}
 
 inline bool Runtime::tryLoadLibrary(const std::string& libraryPath,
                                     void** sharedLibraryHandle,
@@ -313,7 +322,7 @@ std::shared_ptr<Runtime> Runtime::load() {
 
 
 std::shared_ptr<Runtime> Runtime::load(LoadState& loadState) {
-    isDynamic_ = true;
+//    isDynamic_ = true;
     loadState = LoadState::SUCCESS;
     if(!registeredRuntimeLoadFunctions_) {
         registeredRuntimeLoadFunctions_ = new std::unordered_map<std::string, MiddlewareRuntimeLoadFunction>();
@@ -343,7 +352,7 @@ std::shared_ptr<Runtime> Runtime::load(const std::string& middlewareIdOrAlias) {
 }
 
 std::shared_ptr<Runtime> Runtime::load(const std::string& middlewareIdOrAlias, LoadState& loadState) {
-    isDynamic_ = true;
+//    isDynamic_ = true;
     loadState = LoadState::SUCCESS;
     if (!registeredRuntimeLoadFunctions_) {
         registeredRuntimeLoadFunctions_ = new std::unordered_map<std::string, MiddlewareRuntimeLoadFunction>();
