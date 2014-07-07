@@ -1,0 +1,8 @@
+
+This is CommonAPI 2.1.6
+
+Changes since 2.1.5
+- Enhanced Windows Support
+- Fixed compile warnings
+- Fixed asciidoc errors
+- Move specification to CommonAPI-Tools

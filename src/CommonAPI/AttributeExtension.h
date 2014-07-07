@@ -25,7 +25,7 @@ namespace CommonAPI {
 template<typename _AttributeType>
 class AttributeExtension {
  public:
-    inline _AttributeType& getBaseAttribute() {
+    _AttributeType& getBaseAttribute() {
         return baseAttribute_;
     }
 
@@ -36,6 +36,20 @@ class AttributeExtension {
 
     _AttributeType& baseAttribute_;
 };
+
+#ifdef WIN32
+template<typename _AttributeType>
+class WINDummyAttributeExtension : public CommonAPI::AttributeExtension<_AttributeType> {
+    typedef AttributeExtension<_AttributeType> __baseClass_t;
+    WINDummyAttribute dummyAttribute;
+public:
+    WINDummyAttributeExtension() {};
+    WINDummyAttributeExtension(Proxy& proxy) :
+    AttributeExtension<_AttributeType>(dummyAttribute) {}
+
+    ~WINDummyAttributeExtension() {}
+};
+#endif
 
 } // namespace CommonAPI
 

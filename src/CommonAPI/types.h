@@ -29,6 +29,25 @@
 #endif
 
 
+#ifdef WIN32
+#define CCALL __cdecl
+#pragma section(".CRT$XCU",read)
+#define INITIALIZER(f) \
+    static void __cdecl f(void); \
+    __declspec(allocate(".CRT$XCU")) void(__cdecl*f##_)(void) = f; \
+    static void __cdecl f(void)
+#else
+#define CCALL
+#define INITIALIZER(f) \
+    static void f(void) __attribute__((constructor)); \
+    static void f(void)
+#endif
+
+#ifdef WIN32
+#define usleep(micSec) \
+    std::this_thread::sleep_for(std::chrono::microseconds(micSec))
+#endif
+
 namespace CommonAPI {
 
 enum class AvailabilityStatus {
@@ -86,7 +105,7 @@ struct SelectiveBroadcastSubscriptionResult {
 template<typename _EnumType>
 class EnumHasher {
 public:
-    inline size_t operator()(const _EnumType& testEnum) const {
+    size_t operator()(const _EnumType& testEnum) const {
         return static_cast<int32_t>(testEnum);
     }
 

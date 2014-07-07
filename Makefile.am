@@ -3,7 +3,7 @@ EXTRA_DIST = LICENSE
 MOSTLYCLEANFILES =
 # Library interface (not package version!)
 LIBCOMMONAPI_CURRENT=3
-LIBCOMMONAPI_REVISION=0
+LIBCOMMONAPI_REVISION=1
 LIBCOMMONAPI_AGE=0
 
 AM_CPPFLAGS = \
@@ -37,7 +37,11 @@ libCommonAPI_la_SOURCES = \
         src/CommonAPI/Runtime.cpp \
         src/CommonAPI/Configuration.cpp \
         src/CommonAPI/ServicePublisher.cpp \
-        src/CommonAPI/ContainerUtils.cpp
+        src/CommonAPI/ContainerUtils.cpp \
+        src/CommonAPI/MainLoopContext.cpp \
+        src/CommonAPI/InputStream.cpp \
+        src/CommonAPI/Factory.cpp \
+        src/CommonAPI/utils.cpp
 
 CommonAPI_includedir=$(includedir)/CommonAPI-${COMMONAPI_API_HEADER_VERSION}/CommonAPI
 CommonAPI_include_HEADERS = \
@@ -92,4 +96,4 @@ VariantTest_LDADD = ${LDADD} ${GTEST_LIBS} libCommonAPI.la
 endif
 
 doc: doxygen-doc
-	 asciidoc -b html -o doc/html/README.html README
+	asciidoc -a version=@PACKAGE_VERSION@ -b html -o doc/html/README.html README

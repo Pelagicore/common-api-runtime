@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 #include <gtest/gtest.h>
-#include <src/CommonAPI/SerializableVariant.h>
+#include "../CommonAPI/SerializableVariant.h"
 
 using namespace CommonAPI;
 
@@ -64,7 +64,7 @@ struct test2: CommonAPI::SerializableStruct {
 TEST_F(VariantTest, VariantTestPack) {
 
     int fromInt = 5;
-    double fromDouble = 12.344d;
+    double fromDouble = 12.344;
     std::string fromString = "123abcsadfaljkawlöfasklöerklöfjasklfjysklfjaskfjsklösdfdko4jdfasdjioögjopefgip3rtgjiprg!";
     Variant<int, double, std::string> myVariant(fromInt);
 
@@ -104,7 +104,7 @@ TEST_F(VariantTest, VariantTestPack) {
     EXPECT_EQ(myIntCopy2, fromInt);
 
 #ifdef __EXCEPTIONS
-    EXPECT_ANY_THROW(const int& myFake = myVariant.get<double>());
+    EXPECT_ANY_THROW(myVariant.get<double>());
 #endif
 
     EXPECT_TRUE(myVariant.isType<int>());
