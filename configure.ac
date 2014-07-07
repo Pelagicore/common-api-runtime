@@ -1,6 +1,6 @@
 AC_PREREQ(2.61)
-AC_INIT([GENIVI Common API C++ Library],
-        [2.1.4],
+AC_INIT([GENIVI IPC Common API C++],
+        [2.1.6],
         [],
         [CommonAPI])
 
@@ -9,15 +9,17 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADERS([build-aux/config.h])
 AC_CONFIG_FILES([
-		Makefile
-		CommonAPI.pc
-		CommonAPI-uninstalled.pc])
+        Makefile
+        CommonAPI.pc
+        CommonAPI-uninstalled.pc])
 
 AC_CANONICAL_SYSTEM
 
 AM_INIT_AUTOMAKE([foreign 1.11 silent-rules subdir-objects -Wall -Werror])
 AM_SILENT_RULES
 AM_MAINTAINER_MODE
+
+AS_IF([test -z "${CXXFLAGS}"], [CXXFLAGS='-O0'], [])
 
 AC_PROG_CXX
 AC_LANG([C++])

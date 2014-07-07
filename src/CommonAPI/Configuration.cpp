@@ -65,7 +65,6 @@ const std::string& Configuration::getDefaultMiddlewareIdentifier() const {
 
 void Configuration::readConfigFile(std::ifstream& addressConfigFile) {
     std::string currentlyParsedBindingIdentifier = "";
-    bool endFile = false;
 
     std::string readLine;
 
@@ -123,8 +122,22 @@ void Configuration::readConfigFile(std::ifstream& addressConfigFile) {
 void Configuration::readEnvironmentVariables() {
     librarySearchPaths_ = split(COMMONAPI_STD_LIB_PATH, ':');
 
+    bool errorOccured = false;
+#ifdef WIN32
+    char* environmentBindingPath;
+    size_t len;
+    errno_t err = _dupenv_s(&environmentBindingPath, &len, COMMONAPI_ENVIRONMENT_BINDING_PATH);
+    if (err != 0 || environmentBindingPath == NULL) {
+        errorOccured = true;
+    }
+#else
     const char* environmentBindingPath = getenv(COMMONAPI_ENVIRONMENT_BINDING_PATH);
-    if (environmentBindingPath) {
+    if (!environmentBindingPath) {
+        errorOccured = true;
+    }
+#endif
+
+    if (!errorOccured) {
         std::vector<std::string> environmentPaths = split(environmentBindingPath, ':');
         librarySearchPaths_.insert(librarySearchPaths_.begin(), environmentPaths.begin(), environmentPaths.end());
     }
